@@ -1,31 +1,62 @@
-from src.color import *
-from src.vector import Vector
-from src.triangle import Triangle
+import random
+import copy
+
 from src.canvas import *
-from src.genome import render_triangle
+from src.genome import *
 
-triangle = Triangle()
-triangle.v1.x = 0.1
-triangle.v1.y = 0.1
-triangle.v2.x = 0.9
-triangle.v2.y = 0.1
-triangle.v3.x = 0.1
-triangle.v3.y = 0.9
+# set up reference
+#input_file = "mona_lisa_small.png"
+input_file = "test.png"
+reference = import_image(input_file)
 
-color = Color()
-color.r = 1.0
-color.g = 0.0
-color.b = 0.0
-color.a = 1.0
+export_image(reference, "reference")
 
-canvas = black_canvas(100, 100)
+width: int = reference.width
+height: int = reference.height
 
-print("all set up")
+# set up genome
+genome = Genome()
 
-canvas = render_triangle(triangle, color, canvas)
+num_triangles: int = 5
+for n in range(num_triangles):
+    triangle = Triangle()
+    triangle.v1.x = random.random()
+    triangle.v1.y = random.random()
+    triangle.v2.x = random.random()
+    triangle.v2.y = random.random()
+    triangle.v3.x = random.random()
+    triangle.v3.y = random.random()
 
-print("triangle rendered")
+    color = Color()
+    color.r = random.random()
+    color.g = random.random()
+    color.b = random.random()
+    color.a = random.random()
 
-export_image(canvas, "test")
+    genome.triangles.append(triangle)
+    genome.colors.append(color)
 
-print("writing file finished")
+canvas = genome.render(width, height)
+export_image(canvas, "generation_0")
+
+previous_error: float = compare_canvas(reference, canvas)
+
+# start optimizing
+num_iterations: int = 10000000
+
+prev_written: int = 0
+for n in range(num_iterations):
+    print(n)
+
+    genome2 = copy.deepcopy(genome)
+    genome2.mutate()
+    canvas = genome2.render(width,height)
+    current_error: float = compare_canvas(reference, canvas)
+
+    if current_error <= previous_error:
+        genome = genome2
+        previous_error = current_error
+        if n - prev_written > 10:
+            export_image(canvas, "generation_{}".format(n+1))
+            prev_written = n
+
