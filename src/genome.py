@@ -1,5 +1,3 @@
-import math
-
 from src.canvas import Canvas
 from src.vector import Vector
 from src.triangle import Triangle
@@ -11,13 +9,14 @@ class Genome:
         self.triangles = []
         self.colors = []
 
-    def render(self, width: int, height: int):
+    def render(self, width: int, height: int) -> Canvas:
         assert(self.triangles.len() == self.colors.len())
 
         canvas = Canvas(width, height)
+        for i in range(self.triangles.len()):
+            canvas = render_triangle(self.triangles[i], self.triangles[i], canvas)
 
-        #for i in range(0, )
-        #TODO
+        return canvas
 
 
 def render_triangle(triangle: Triangle, color: Color, canvas: Canvas) -> Canvas:
@@ -40,3 +39,5 @@ def render_triangle(triangle: Triangle, color: Color, canvas: Canvas) -> Canvas:
             vector = canvas.index_to_vector(px, py)
             if triangle.contains(vector):
                 canvas.draw(px, py, color)
+
+    return canvas
