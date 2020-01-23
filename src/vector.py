@@ -30,11 +30,13 @@ class Vector:
         result.y = self.y * a
         return result
 
+
 def dot(v1: Vector, v2: Vector) -> float:
     return v1.x * v2.x + v1.y * v2.y
 
+
 # from two vectors (provided being linearly independent), makes a conjugate (relatively contravariant) pair
-#def make_conjugate(v1: Vector, v2: Vector) -> tuple[Vector, Vector]:
+# when linearly dependent, will return two zero vectors
 def make_conjugate(v1: Vector, v2: Vector):
     v1_rot = Vector()
     v1_rot.y = v1.x
@@ -44,8 +46,14 @@ def make_conjugate(v1: Vector, v2: Vector):
     v2_rot.y = v2.x
     v2_rot.x = -v2.y
 
-    # observe that the indices 1 and 2 are mixed, since dot(v1, v1_rot) = 0, so v1_rot proportional to v2_conj
-    v1_conj = v2_rot.mul(1.0 / dot(v1, v2_rot))
-    v2_conj = v1_rot.mul(1.0 / dot(v2, v1_rot))
+    d1 = dot(v1, v2_rot)
+    d2 = dot(v2, v1_rot)
 
-    return (v1_conj, v2_conj)
+    if d1 == 0.0 or d2 == 0:
+        return Vector(), Vector()
+
+    # observe that the indices 1 and 2 are mixed, since dot(v1, v1_rot) = 0, so v1_rot proportional to v2_conj
+    v1_conj = v2_rot.mul(1.0 / d1)
+    v2_conj = v1_rot.mul(1.0 / d2)
+
+    return v1_conj, v2_conj
